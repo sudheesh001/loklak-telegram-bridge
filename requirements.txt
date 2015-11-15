@@ -1,3 +1,5 @@
+asyncoro==3.5
+python-loklak-api==1.0.1
 python-telegram-bot==2.8.7
 requests==2.8.1
 wsgiref==0.1.2
