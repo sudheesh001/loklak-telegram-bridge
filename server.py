@@ -1,9 +1,19 @@
 import logging
 import telegram
 from token import TOKEN
+from loklak import Loklak
+
+from utils import get_tweet_rating, tweet_reply
 
 
 LAST_UPDATE_ID = None
+
+l = Loklak()
+
+commands = {
+    'no-args': ['/start', '/help'],
+    'with-args': ['/search', '/suggest', '/crawler', '/geocode', '/user']
+}
 
 def main():
     global LAST_UPDATE_ID
@@ -24,7 +34,32 @@ def main():
     while True:
         echo(bot)
 
-def serveOptions(bot, chat_id, message):
+def search(query):
+    """Search Loklak for a specific query.
+
+    Args:
+        query: the query to search for.
+    Returns:
+        search results for query.
+
+    """
+    tweets = l.search(query)['statuses']
+    if tweets:
+        tweets.sort(key=get_tweet_rating)
+        tweet = tweets.pop()
+        return tweet_reply(tweet, len(tweets))
+    else:
+        # Try to search for a weaker query by deleting the last word
+        # "An awesome query" -> "An awesome" -> ...
+        query = query.split()[:-1]
+        if query:
+            query = ' '.join(query)
+            search(query)
+        else:
+            return 'Sorry, but we have found any tweets for your query'
+
+
+def serveOptions():
     options = """
             Search API Wrapper which helps to query loklak for JSON results.\n
             Status API Wrapper for the loklak status check.\n
@@ -38,28 +73,47 @@ def serveOptions(bot, chat_id, message):
             Map Visualization render using Loklak service.\n
             Markdown conversion API to render markdown as image using Loklak.\n
             """
-    bot.sendMessage(chat_id=chat_id, text=options)
+    return options
 
-def stringParse(bot, messageString, LAST_UPDATE_ID):
+def stringParse(bot, messageString):
     # String parser functions that are required for the bot.
     global LAST_UPDATE_ID
 
     # String parse as required according to the functions
-    mQueryType = messageString.split(' ')[0] # First element containing the / element
-    if mQueryType == '/search':
-        # do some operations
-    elif mQueryType == '/status':
-        # do some operations
-    elif mQueryType == '/suggest':
-        # do some operations
-    elif mQueryType == '/crawler':
-        # do some operations
-    elif mQueryType == '/geocode':
-        # do some operations
-    elif mQueryType == '/user':
-        # do some operations
+    try:
+        command, query = messageString.split(' ', 1)
+    except ValueError:
+        # single argument given
+        command = messageString
+        if command in commands['no-args']:
+            if command == '/start' or command == '/help':
+                return serveOptions()
+        else:
+            if command in commands['with-args']:
+                return 'Sorry, you have to pass some arguments to {}'.format(command)
+            else:
+                return 'Sorry, but I don\'t know what to do with {}'.format(command)
+            
+    if command in commands['with-args']:      
+        if command == '/search':
+            return search(query)
+        elif command == '/status':
+            # do some operations
+            pass
+        elif command == '/suggest':
+            # do some operations
+            pass
+        elif command == '/crawler':
+            # do some operations
+            pass
+        elif command == '/geocode':
+            # do some operations
+            pass
+        elif command == '/user':
+            # do some operations
+            pass
     else:
-        return 'This command is not the command that the bot recognizes. Please try again.'
+        return 'Sorry, but I don\'t know what to do with {}'.format(command)
 
 def echo(bot):
     global LAST_UPDATE_ID
@@ -70,14 +124,12 @@ def echo(bot):
         chat_id = update.message.chat_id
         message = update.message.text.encode('utf-8')
 
-        if message == '/start' or message == '/help':
-            serveOptions(bot, chat_id, message)
-
-        if (message):
+        if message:
             # Reply the message
             print str(chat_id) + ' :: ' + str(message)
+            reply = stringParse(bot, message)
             bot.sendMessage(chat_id=chat_id,
-                            text=message)
+                            text=reply)
 
             # Updates global offset to get the new updates
             LAST_UPDATE_ID = update.update_id + 1
