@@ -43,20 +43,23 @@ def search(query):
         search results for query.
 
     """
-    tweets = l.search(query)['statuses']
-    if tweets:
-        tweets.sort(key=get_tweet_rating)
-        tweet = tweets.pop()
-        return tweet_reply(tweet, len(tweets))
-    else:
-        # Try to search for a weaker query by deleting the last word
-        # "An awesome query" -> "An awesome" -> ...
-        query = query.split()[:-1]
-        if query:
-            query = ' '.join(query)
-            search(query)
+    try:
+        tweets = l.search(query)['statuses']
+        if tweets:
+            tweets.sort(key=get_tweet_rating)
+            tweet = tweets.pop()
+            return tweet_reply(tweet, len(tweets))
         else:
-            return 'Sorry, but we have found any tweets for your query'
+            # Try to search for a weaker query by deleting the last word
+            # "An awesome query" -> "An awesome" -> ...
+            query = query.split()[:-1]
+            if query:
+                query = ' '.join(query)
+                search(query)
+            else:
+                return 'Sorry, but I haven\'t found any tweets for your query'
+    except:
+        return 'Something went wrong'
 
 
 def serveOptions():

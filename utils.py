@@ -9,9 +9,9 @@ def tweet_reply(tweet, tweets_left):
     Function that returns a tweet from the loklak object
     """
     reply = '"{message}" - {author} \n\n{link}\n\n and {more} more tweets.'.format(
-        message=unicode(tweet['text']),
-        author=unicode(tweet['screen_name']),
-        link=unicode(tweet['link']),
+        message=tweet['text'].encode('utf-8'),
+        author=tweet['screen_name'].encode('utf-8'),
+        link=tweet['link'].encode('utf-8'),
         more=tweets_left
     )
     return reply
