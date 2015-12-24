@@ -1,14 +1,23 @@
-from utils import get_tweet_rating, tweet_reply, user_reply
+from utils import get_tweet_rating, tweet_reply, user_reply, place_text_reply
 from loklak import Loklak
 
 l = Loklak()
 
 
 def status():
+    """Get the server status.
+
+    Returns:
+        server status.
+
+    """
     status_reply = l.hello()['status']
     if status_reply == 'ok':
-        return 'I am okay!'
-    return status_reply
+        status_reply = 'I am okay!'
+    context = {
+        'text': status_reply
+    }
+    return context
 
 
 def search(query):
@@ -17,14 +26,17 @@ def search(query):
     Args:
         query: the query to search for.
     Returns:
-        search results for query.
+        tweet object for the query.
 
     """
     tweets = l.search(query)['statuses']
     if tweets:
         tweets.sort(key=get_tweet_rating)
         tweet = tweets.pop()
-        return tweet_reply(tweet, len(tweets))
+        context = {
+            'text': tweet_reply(tweet, len(tweets))
+        }
+        return context
     else:
         # Try to search for a weaker query by deleting the last word
         # "An awesome query" -> "An awesome" -> ...
@@ -33,7 +45,9 @@ def search(query):
             query = ' '.join(query)
             search(query)
         else:
-            return 'Sorry, but I haven\'t found any tweets for your query'
+            return {
+                'text': 'Sorry, I haven\'t found any informarion for your query'
+            }
 
 
 def user(screen_name):
@@ -48,8 +62,41 @@ def user(screen_name):
     try:
         user = l.user(screen_name)['user']
     except KeyError:
-        return 'Sorry, I haven\'t found any informarion about {}'.format(screen_name)
-    return user_reply(user)
+        return {
+            'text': 'Sorry, I haven\'t found any informarion about {}'.format(
+                screen_name)
+        }
+    context = {
+        'text': user_reply(user)
+    }
+    return context
+
+
+def geocode(places_names):
+    """Search Loklak for a specific geolocation.
+
+    Args:
+        places: comma separated list of places.
+    Returns:
+        place, population, country, country_code and location from Google.
+
+    """
+    context = []
+    places = l.geocode(places_names)['locations']
+    for place_name, place in places.iteritems():
+        if place:
+            place_reply = {
+                'text': place_text_reply(place_name, place),
+                'location': {
+                    'longitude': place['location'][0],
+                    'latitude': place['location'][1]
+                }
+            }
+            context.append(place_reply)
+        else:
+            context.append(dict(
+                text='Sorry, I haven\'t found any geo informarion for {}'.format(place_name)))
+    return context
 
 
 def serveOptions():
@@ -66,4 +113,7 @@ def serveOptions():
             Map Visualization render using Loklak service.
             Markdown conversion API to render markdown as image using Loklak.
             """
-    return options
+    context = {
+        'text': options
+    }
+    return context
