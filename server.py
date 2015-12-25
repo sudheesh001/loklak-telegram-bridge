@@ -2,7 +2,8 @@ import logging
 import telegram
 from token import TOKEN
 
-from commands import serveOptions, search, status, user
+from commands import serveOptions, search, status, user, geocode
+from utils import return_reply
 
 LAST_UPDATE_ID = None
 
@@ -56,8 +57,6 @@ def stringParse(bot, messageString):
     if command in commands['with-args']:
         if command == '/search':
             return search(query)
-        elif command == '/status':
-            return status()
         elif command == '/suggest':
             # do some operations
             pass
@@ -65,8 +64,7 @@ def stringParse(bot, messageString):
             # do some operations
             pass
         elif command == '/geocode':
-            # do some operations
-            pass
+            return geocode(query)
         elif command == '/user':
             return user(query)
     else:
@@ -86,8 +84,11 @@ def echo(bot):
             # Reply the message
             print str(chat_id) + ' :: ' + str(message)
             reply = stringParse(bot, message)
-            bot.sendMessage(chat_id=chat_id,
-                            text=reply)
+            if isinstance(reply, list):
+                for reply_instance in reply:
+                    return_reply(bot, chat_id, reply_instance)
+            else:
+                return_reply(bot, chat_id, reply)
 
             # Updates global offset to get the new updates
             LAST_UPDATE_ID = update.update_id + 1
