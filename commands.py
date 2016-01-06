@@ -1,8 +1,11 @@
 from utils import get_tweet_rating, tweet_reply, user_reply, place_text_reply
+import textrazor
 from loklak import Loklak
+from token import TEXT_TOKEN
 
 l = Loklak()
-
+textrazor.api_key = TEXT_TOKEN
+client = textrazor.TextRazor(extractors=["entities"])
 
 def status():
     """Get the server status.
@@ -29,25 +32,26 @@ def search(query):
         tweet object for the query.
 
     """
-    tweets = l.search(query)['statuses']
-    if tweets:
-        tweets.sort(key=get_tweet_rating)
+    score = {}
+    try:
+        tweets = l.search(query)['statuses']
         tweet = tweets.pop()
         context = {
             'text': tweet_reply(tweet, len(tweets))
         }
-        return context
-    else:
-        # Try to search for a weaker query by deleting the last word
-        # "An awesome query" -> "An awesome" -> ...
-        query = query.split()[:-1]
-        if query:
-            query = ' '.join(query)
-            search(query)
-        else:
-            return {
-                'text': 'Sorry, I haven\'t found any informarion for your query'
-            }
+    except IndexError:
+		print "Searching for the most Relavent Item..!"
+		response = client.analyze(query)
+		for e in response.entities():
+			score[e.id] = e.confidence_score
+		key = sorted(score.values())[-1]
+		tweets = l.search(
+			score.keys()[score.values().index(key)])['statuses']
+		tweet = tweets.pop()
+		context = {
+            'text': tweet_reply(tweet, len(tweets))
+        }
+    return context
 
 
 def user(screen_name):

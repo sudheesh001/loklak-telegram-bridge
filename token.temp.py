@@ -1,1 +1,2 @@
-TOKEN = ''
+BOT_TOKEN = ''
+TEXT_TOKEN = ''

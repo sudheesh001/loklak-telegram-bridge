@@ -1,6 +1,6 @@
 import logging
 import telegram
-from token import TOKEN
+from token import BOT_TOKEN
 
 from commands import serveOptions, search, status, user, geocode
 from utils import return_reply
@@ -20,7 +20,7 @@ def main():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     # Telegram Bot Authorization Token
-    bot = telegram.Bot(TOKEN)
+    bot = telegram.Bot(BOT_TOKEN)
 
     # This will be our global variable to keep the latest update_id when requesting
     # for updates. It starts with the latest update_id if available.
