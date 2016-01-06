@@ -1,6 +1,12 @@
 # loklak-telegram-bridge
 Integrating loklak with telegram API to search read and view stats and graphs on telegram.
 
+#For 'Text Razor' text classification
+1. Go to http://textrazor.com and register yourself for a free API key.
+2. Paste the obtained key in the token.py to TEXT_TOKEN variable.
+3. for a free tier of Text Razor, one can make 500 requests/day.
+4. for more extractors (entities, topics etc.) visit https://www.textrazor.com/docs/python
+
 # Feature integrations
 (Coming soon)
 
