@@ -75,6 +75,14 @@ def user(screen_name):
     }
     return context
 
+def markdown(text):
+    """Return markdown embedded in an image
+
+    Args:
+        text
+    """
+    data = l.get_markdown(text)
+    return data
 
 def geocode(places_names):
     """Search Loklak for a specific geolocation.

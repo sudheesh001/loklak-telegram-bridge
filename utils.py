@@ -1,3 +1,5 @@
+import requests
+
 def return_reply(bot, chat_id, reply):
     """
     Function that sends different info depending on the bot reply
@@ -14,6 +16,18 @@ def return_reply(bot, chat_id, reply):
     except KeyError:
         pass
 
+def return_image(bot, chat_id, data):
+    """
+    Function that sends image
+    """
+    API_URL = "https://api.telegram.org/bot{0}/{1}"
+    method_name = r'sendPhoto'
+    payload = {}
+    payload['chat_id'] = chat_id
+
+    request_url = API_URL.format(bot.token, method_name)
+    files = {'photo': ('markdown.png', data)}
+    result = requests.request('post', request_url, params=payload, files=files)
 
 def get_tweet_rating(tweet):
     """
