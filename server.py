@@ -59,10 +59,10 @@ def stringParse(bot, messageString):
             return search(query)
         elif command == '/suggest':
             # do some operations
-            pass
+            'Sorry, but I don\'t know what to do with {}'.format(command)
         elif command == '/crawler':
             # do some operations
-            pass
+            'Sorry, but I don\'t know what to do with {}'.format(command)
         elif command == '/geocode':
             return geocode(query)
         elif command == '/user':
@@ -87,6 +87,8 @@ def echo(bot):
             if isinstance(reply, list):
                 for reply_instance in reply:
                     return_reply(bot, chat_id, reply_instance)
+            elif isinstance(reply, str):
+                return_reply(bot, chat_id, {'text': reply})
             else:
                 return_reply(bot, chat_id, reply)
 
