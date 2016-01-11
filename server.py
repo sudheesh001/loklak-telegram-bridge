@@ -2,14 +2,14 @@ import logging
 import telegram
 from token import BOT_TOKEN
 
-from commands import serveOptions, search, status, user, geocode
-from utils import return_reply
+from commands import serveOptions, search, status, user, geocode, markdown
+from utils import return_reply, return_image
 
 LAST_UPDATE_ID = None
 
 commands = {
     'no-args': ['/start', '/help', '/status'],
-    'with-args': ['/search', '/suggest', '/crawler', '/geocode', '/user']
+    'with-args': ['/search', '/suggest', '/crawler', '/geocode', '/user', '/markdown']
 }
 
 
@@ -59,14 +59,16 @@ def stringParse(bot, messageString):
             return search(query)
         elif command == '/suggest':
             # do some operations
-            pass
+            'Sorry, but I don\'t know what to do with {}'.format(command)
         elif command == '/crawler':
             # do some operations
-            pass
+            'Sorry, but I don\'t know what to do with {}'.format(command)
         elif command == '/geocode':
             return geocode(query)
         elif command == '/user':
             return user(query)
+        elif command == '/markdown':
+            return markdown(query)
     else:
         return 'Sorry, but I don\'t know what to do with {}'.format(command)
 
@@ -87,6 +89,11 @@ def echo(bot):
             if isinstance(reply, list):
                 for reply_instance in reply:
                     return_reply(bot, chat_id, reply_instance)
+            elif isinstance(reply, str):
+                if "markdown" in message:
+                    return_image(bot, chat_id, reply)
+                else:
+                    return_reply(bot, chat_id, {'text': reply})
             else:
                 return_reply(bot, chat_id, reply)
 
